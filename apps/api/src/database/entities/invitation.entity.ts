@@ -8,7 +8,8 @@ export class Invitation {
   @Column({ type: 'varchar', length: 12, unique: true }) token: string;
   @Column({ type: 'varchar', length: 64, unique: true }) inviterId: string;
   @OneToOne(() => User, (user) => user.invitation, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'inviterId' }) inviter: User;
+  @JoinColumn({ name: 'inviterId' })
+  inviter: User;
   @CreateDateColumn({ type: 'datetime' }) createdAt: Date;
   @OneToMany(() => Referral, (referral) => referral.invitation) referrals?: Referral[];
 }

@@ -9,7 +9,19 @@ import { InvitationsModule } from './invitations/invitations.module';
 import { ReferralsModule } from './referrals/referrals.module';
 import { UsersModule } from './users/users.module';
 
-@Module({ imports: [TypeOrmModule.forRoot(databaseConfig()), DatabaseModule, AuthModule, HealthModule, UsersModule, InvitationsModule, ReferralsModule] })
+@Module({
+  imports: [
+    TypeOrmModule.forRoot(databaseConfig()),
+    DatabaseModule,
+    AuthModule,
+    HealthModule,
+    UsersModule,
+    InvitationsModule,
+    ReferralsModule
+  ]
+})
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): void { consumer.apply(RequestIdMiddleware).forRoutes({ path: '{*path}', method: RequestMethod.ALL }); }
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(RequestIdMiddleware).forRoutes({ path: '{*path}', method: RequestMethod.ALL });
+  }
 }

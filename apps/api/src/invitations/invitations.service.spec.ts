@@ -8,12 +8,21 @@ describe('InvitationsService', () => {
   let dataSource: DataSource;
   let service: InvitationsService;
   beforeEach(async () => {
-    dataSource = new DataSource({ type: 'better-sqlite3', database: ':memory:', entities: [User, Invitation, Referral, CreditTransaction], migrations: [InitialSchema1755660000000, AuthAndShortToken1755661000000], migrationsRun: true, synchronize: false });
+    dataSource = new DataSource({
+      type: 'better-sqlite3',
+      database: ':memory:',
+      entities: [User, Invitation, Referral, CreditTransaction],
+      migrations: [InitialSchema1755660000000, AuthAndShortToken1755661000000],
+      migrationsRun: true,
+      synchronize: false
+    });
     await dataSource.initialize();
     await dataSource.getRepository(User).insert({ id: 'usr_alice', name: 'Alice', email: 'alice@example.com', creditBalance: 0 });
     service = new InvitationsService(dataSource.getRepository(Invitation), dataSource.getRepository(User));
   });
-  afterEach(async () => { if (dataSource.isInitialized) await dataSource.destroy(); });
+  afterEach(async () => {
+    if (dataSource.isInitialized) await dataSource.destroy();
+  });
 
   it('creates once and reuses the same opaque token', async () => {
     const first = await service.createOrReuse('usr_alice', 'req-1');

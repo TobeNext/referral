@@ -9,8 +9,11 @@ export class HealthController {
   @Get()
   @ApiOkResponse({ schema: { example: { status: 'ok', database: 'up' } } })
   async getHealth(): Promise<{ status: 'ok'; database: 'up' }> {
-    try { await this.dataSource.query('SELECT 1'); }
-    catch { throw new ServiceUnavailableException({ code: 'DATABASE_UNAVAILABLE', message: '数据库不可用' }); }
+    try {
+      await this.dataSource.query('SELECT 1');
+    } catch {
+      throw new ServiceUnavailableException({ code: 'DATABASE_UNAVAILABLE', message: '数据库不可用' });
+    }
     return { status: 'ok', database: 'up' };
   }
 }

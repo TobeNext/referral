@@ -14,7 +14,9 @@ export class AuthController {
   @HttpCode(200)
   @ApiOkResponse({ type: AuthResponseDto })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
-  login(@Body() input: LoginDto): Promise<AuthResponseDto> { return this.auth.login(input); }
+  login(@Body() input: LoginDto): Promise<AuthResponseDto> {
+    return this.auth.login(input);
+  }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)

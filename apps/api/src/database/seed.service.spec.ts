@@ -13,13 +13,20 @@ describe('SeedService', () => {
     };
     const repository = {
       createQueryBuilder: jest.fn(() => queryBuilder),
-      insert: jest.fn(async (value: Partial<User>) => { alice = value; return {} as never; })
+      insert: jest.fn(async (value: Partial<User>) => {
+        alice = value;
+        return {} as never;
+      })
     };
-    const module = await Test.createTestingModule({ providers: [SeedService, { provide: getRepositoryToken(User), useValue: repository }] }).compile();
+    const module = await Test.createTestingModule({
+      providers: [SeedService, { provide: getRepositoryToken(User), useValue: repository }]
+    }).compile();
     const service = module.get(SeedService);
     await service.onApplicationBootstrap();
     await service.onApplicationBootstrap();
     expect(repository.insert).toHaveBeenCalledTimes(1);
-    expect(repository.insert).toHaveBeenCalledWith(expect.objectContaining({ id: 'usr_alice', email: 'alice@example.com', mustResetPassword: false }));
+    expect(repository.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'usr_alice', email: 'alice@example.com', mustResetPassword: false })
+    );
   });
 });

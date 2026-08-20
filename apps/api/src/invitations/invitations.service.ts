@@ -24,7 +24,12 @@ export class InvitationsService {
 
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const token = this.generateToken();
-      await this.invitations.createQueryBuilder().insert().values({ id: `inv_${randomUUID()}`, token, inviterId: userId }).orIgnore().execute();
+      await this.invitations
+        .createQueryBuilder()
+        .insert()
+        .values({ id: `inv_${randomUUID()}`, token, inviterId: userId })
+        .orIgnore()
+        .execute();
       const byInviter = await this.invitations.findOneBy({ inviterId: userId });
       if (byInviter) return this.result(byInviter, byInviter.token === token, requestId);
     }
@@ -43,7 +48,14 @@ export class InvitationsService {
   private result(invitation: Invitation, created: boolean, requestId?: string): { invitation: InvitationLinkDto; created: boolean } {
     const path = `/i/${invitation.token}`;
     const baseUrl = (process.env.PUBLIC_WEB_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
-    this.logger.log(JSON.stringify({ event: created ? 'invitation.created' : 'invitation.reused', requestId, inviterId: invitation.inviterId, invitationId: invitation.id }));
+    this.logger.log(
+      JSON.stringify({
+        event: created ? 'invitation.created' : 'invitation.reused',
+        requestId,
+        inviterId: invitation.inviterId,
+        invitationId: invitation.id
+      })
+    );
     return { created, invitation: { token: invitation.token, path, publicUrl: `${baseUrl}${path}` } };
   }
 

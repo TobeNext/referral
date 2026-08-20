@@ -11,10 +11,17 @@ const DUMMY_HASH = '$2b$10$CwTycUXWue0Thq9StjUM0uJ8n0YQ39iYLMuxGdZrqPGKq7Gg1w72e
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectRepository(User) private readonly users: Repository<User>, private readonly jwt: JwtService) {}
+  constructor(
+    @InjectRepository(User) private readonly users: Repository<User>,
+    private readonly jwt: JwtService
+  ) {}
 
   async login(input: LoginDto): Promise<AuthResponseDto> {
-    const user = await this.users.createQueryBuilder('user').addSelect('user.passwordHash').where('user.email = :email', { email: input.email }).getOne();
+    const user = await this.users
+      .createQueryBuilder('user')
+      .addSelect('user.passwordHash')
+      .where('user.email = :email', { email: input.email })
+      .getOne();
     const matches = await compare(input.password, user?.passwordHash || DUMMY_HASH);
     if (!user || !user.passwordHash || !matches) {
       throw new UnauthorizedException({ code: 'INVALID_CREDENTIALS', message: '账号或密码错误' });
@@ -29,7 +36,11 @@ export class AuthService {
     if (!/[A-Za-z]/.test(input.newPassword) || !/\d/.test(input.newPassword)) {
       throw new BadRequestException({ code: 'PASSWORD_TOO_WEAK', message: '新密码至少 10 位，并同时包含字母和数字' });
     }
-    const user = await this.users.createQueryBuilder('user').addSelect('user.passwordHash').where('user.id = :id', { id: current.id }).getOne();
+    const user = await this.users
+      .createQueryBuilder('user')
+      .addSelect('user.passwordHash')
+      .where('user.id = :id', { id: current.id })
+      .getOne();
     if (!user?.passwordHash || !(await compare(input.currentPassword, user.passwordHash))) {
       throw new BadRequestException({ code: 'CURRENT_PASSWORD_INVALID', message: '当前密码不正确' });
     }

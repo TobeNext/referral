@@ -9,5 +9,7 @@ export class DemoController {
   constructor(private readonly demo: DemoService) {}
   @Get('inviter')
   @ApiOkResponse({ type: ReferralSummaryDto, description: 'Demo inviter summary' })
-  getInviter(): Promise<ReferralSummaryDto> { return this.demo.getInviter(); }
+  getInviter(): Promise<ReferralSummaryDto> {
+    return this.demo.getInviter();
+  }
 }

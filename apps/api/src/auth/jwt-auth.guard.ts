@@ -5,7 +5,10 @@ import { AuthenticatedRequest, JwtClaims } from './auth.types';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly jwt: JwtService, private readonly auth: AuthService) {}
+  constructor(
+    private readonly jwt: JwtService,
+    private readonly auth: AuthService
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
