@@ -74,4 +74,22 @@ describe('AuthService', () => {
       service.resetPassword(user, { currentPassword: 'Temporary123', newPassword: 'ValidValue123', confirmPassword: 'Different123' })
     ).rejects.toMatchObject({ response: { code: 'PASSWORD_CONFIRMATION_MISMATCH' } });
   });
+
+  it('rejects an invalid current password and password reuse', async () => {
+    const user = { id: 'usr_bob', name: 'Bob', email: 'bob@example.com', mustResetPassword: true, authVersion: 0 };
+    await expect(
+      service.resetPassword(user, {
+        currentPassword: 'WrongPassword123',
+        newPassword: 'Permanent456',
+        confirmPassword: 'Permanent456'
+      })
+    ).rejects.toMatchObject({ response: { code: 'CURRENT_PASSWORD_INVALID' } });
+    await expect(
+      service.resetPassword(user, {
+        currentPassword: 'Temporary123',
+        newPassword: 'Temporary123',
+        confirmPassword: 'Temporary123'
+      })
+    ).rejects.toMatchObject({ response: { code: 'PASSWORD_REUSE_NOT_ALLOWED' } });
+  });
 });

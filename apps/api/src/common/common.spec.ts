@@ -27,8 +27,11 @@ describe('HTTP common components', () => {
 
   it.each([
     [new HttpException({ code: 'CUSTOM', message: ['first', { field: 'second' }] }, 422), 422, 'CUSTOM', 'first; {"field":"second"}'],
+    [new HttpException({ message: ['invalid input'] }, 400), 400, 'VALIDATION_FAILED', 'invalid input'],
     [new HttpException('missing', 404), 404, 'NOT_FOUND', 'missing'],
-    [new Error('database detail'), 500, 'INTERNAL_ERROR', '服务暂时不可用']
+    [new HttpException({ message: { reason: 'conflict' } }, 409), 409, 'INTERNAL_ERROR', '{"reason":"conflict"}'],
+    [new Error('database detail'), 500, 'INTERNAL_ERROR', '服务暂时不可用'],
+    ['unknown failure', 500, 'INTERNAL_ERROR', '服务暂时不可用']
   ])('normalizes API exceptions without leaking internal errors', (exception, status, code, message) => {
     const json = jest.fn();
     const response = { status: jest.fn().mockReturnValue({ json }) };
@@ -59,7 +62,9 @@ describe('HTTP common components', () => {
     await expect(
       lastValueFrom(interceptor.intercept(context, { handle: () => throwError(() => new HttpException('no', 403)) }))
     ).rejects.toThrow();
+    await expect(lastValueFrom(interceptor.intercept(context, { handle: () => throwError(() => new Error('failed')) }))).rejects.toThrow();
     expect(JSON.parse(String(log.mock.calls[0][0]))).toEqual(expect.objectContaining({ statusCode: 200, durationMs: 25 }));
     expect(JSON.parse(String(log.mock.calls[1][0]))).toEqual(expect.objectContaining({ statusCode: 403 }));
+    expect(JSON.parse(String(log.mock.calls[2][0]))).toEqual(expect.objectContaining({ statusCode: 500 }));
   });
 });

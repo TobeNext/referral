@@ -1,5 +1,5 @@
-import { ConflictException, InternalServerErrorException } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { ConflictException, HttpException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { DataSource, QueryFailedError } from 'typeorm';
 import { CreditTransaction, Invitation, Referral, User } from '../database/entities';
 import { InitialSchema1755660000000 } from '../database/migrations/1755660000000-initial-schema';
 import { AuthAndShortToken1755661000000 } from '../database/migrations/1755661000000-auth-and-short-token';
@@ -68,6 +68,35 @@ describe('ReferralsService', () => {
     expect(settled.filter((item) => item.status === 'fulfilled')).toHaveLength(1);
     expect(settled.filter((item) => item.status === 'rejected')).toHaveLength(1);
     await expectCounts({ users: 2, referrals: 1, transactions: 1, balance: 100 });
+  });
+
+  it('rejects malformed and well-formed unknown invitation tokens', async () => {
+    await expect(service.acceptInvitation('bad', { name: 'Bob', email: 'bob@example.com' })).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.acceptInvitation('ZZZ234ZZZ567', { name: 'Bob', email: 'bob@example.com' })).rejects.toBeInstanceOf(
+      NotFoundException
+    );
+  });
+
+  it('maps database email uniqueness races to the domain conflict', async () => {
+    const queryError = new QueryFailedError('INSERT', [], new Error('UNIQUE constraint failed: users.email'));
+    const failingDataSource = { transaction: jest.fn().mockRejectedValue(queryError) } as unknown as DataSource;
+    await expect(
+      new ReferralsService(failingDataSource, 100).acceptInvitation('ABC234DEF567', { name: 'Bob', email: 'bob@example.com' })
+    ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it.each([
+    ['an HTTP error without a domain code', new HttpException('teapot', 418)],
+    ['an unrelated database error', new QueryFailedError('INSERT', [], new Error('disk unavailable'))],
+    ['an unknown thrown value', 'unknown failure']
+  ])('normalizes %s', async (_label, failure) => {
+    const failingDataSource = { transaction: jest.fn().mockRejectedValue(failure) } as unknown as DataSource;
+    const result = new ReferralsService(failingDataSource, 100).acceptInvitation('ABC234DEF567', {
+      name: 'Bob',
+      email: 'bob@example.com'
+    });
+    if (failure instanceof HttpException) await expect(result).rejects.toBe(failure);
+    else await expect(result).rejects.toBeInstanceOf(InternalServerErrorException);
   });
 
   async function expectCounts(expected: { users: number; referrals: number; transactions: number; balance: number }) {

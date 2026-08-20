@@ -1,4 +1,5 @@
-import { DataSource } from 'typeorm';
+import { Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { CreditTransaction, Invitation, Referral, User } from '../database/entities';
 import { InitialSchema1755660000000 } from '../database/migrations/1755660000000-initial-schema';
 import { AuthAndShortToken1755661000000 } from '../database/migrations/1755661000000-auth-and-short-token';
@@ -51,5 +52,33 @@ describe('InvitationsService', () => {
 
   it('rejects an invalid invitation', async () => {
     await expect(service.getPublic('BAD')).rejects.toMatchObject({ response: { code: 'INVITATION_NOT_FOUND' } });
+  });
+
+  it('rejects a missing user and a well-formed but unknown invitation', async () => {
+    await expect(service.createOrReuse('missing')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.getPublic('ZZZ234ZZZ567')).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('fails safely after exhausting token insertion attempts', async () => {
+    const execute = jest.fn().mockResolvedValue({});
+    const queryBuilder = {
+      insert: jest.fn().mockReturnThis(),
+      values: jest.fn().mockReturnThis(),
+      orIgnore: jest.fn().mockReturnThis(),
+      execute
+    };
+    const invitations = {
+      findOneBy: jest.fn().mockResolvedValue(null),
+      createQueryBuilder: jest.fn(() => queryBuilder)
+    } as unknown as Repository<Invitation>;
+    const users = { findOneBy: jest.fn().mockResolvedValue({ id: 'usr_alice' }) } as unknown as Repository<User>;
+    const error = jest.spyOn(Logger.prototype, 'error').mockImplementation();
+
+    await expect(new InvitationsService(invitations, users).createOrReuse('usr_alice', 'req-exhausted')).rejects.toBeInstanceOf(
+      ServiceUnavailableException
+    );
+    expect(execute).toHaveBeenCalledTimes(5);
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('invitation.token_exhausted'));
+    error.mockRestore();
   });
 });
