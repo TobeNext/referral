@@ -8,12 +8,12 @@ import { ReferralsService } from './referrals.service';
 @Controller('invitations')
 export class ReferralsController {
   constructor(private readonly referrals: ReferralsService) {}
-  @Post(':code/accept')
+  @Post(':token/accept')
   @HttpCode(201)
   @ApiCreatedResponse({ type: AcceptInvitationResultDto })
   @ApiNotFoundResponse({ description: 'Invitation not found' })
   @ApiConflictResponse({ description: 'Email already registered' })
-  accept(@Param('code') code: string, @Body() input: AcceptInvitationDto, @Req() request: RequestWithId): Promise<AcceptInvitationResultDto> {
-    return this.referrals.acceptInvitation(code, input, request[REQUEST_ID]);
+  accept(@Param('token') token: string, @Body() input: AcceptInvitationDto, @Req() request: RequestWithId): Promise<AcceptInvitationResultDto> {
+    return this.referrals.acceptInvitation(token, input, request[REQUEST_ID]);
   }
 }

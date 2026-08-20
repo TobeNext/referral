@@ -33,4 +33,5 @@ export class AcceptedReferralDto {
 export class AcceptInvitationResultDto {
   @ApiProperty({ type: AcceptedUserDto }) user: AcceptedUserDto;
   @ApiProperty({ type: AcceptedReferralDto }) referral: AcceptedReferralDto;
+  @ApiProperty({ description: 'One-time temporary password. It is never persisted as plaintext.', writeOnly: true }) temporaryPassword: string;
 }

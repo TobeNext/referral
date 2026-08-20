@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import { DashboardPage } from './DashboardPage';
 
-const summary = { id: 'usr_alice', name: 'Alice', email: 'alice@example.com', creditBalance: 0, successfulReferralCount: 0, invitation: { code: 'ABC123', publicUrl: 'http://localhost:3000/ref/ABC123' }, referrals: [], hasMore: false };
+const summary = { id: 'usr_alice', name: 'Alice', email: 'alice@example.com', creditBalance: 0, successfulReferralCount: 0, invitation: { token: 'ABC234DEF567', publicUrl: 'http://localhost:3000/i/ABC234DEF567' }, referrals: [], hasMore: false };
 function renderPage() { const client = new QueryClient({ defaultOptions: { queries: { retry: false } } }); return render(<QueryClientProvider client={client}><DashboardPage/></QueryClientProvider>); }
 
 it('copies the complete public URL and reports success', async () => {
@@ -12,8 +12,8 @@ it('copies the complete public URL and reports success', async () => {
   const writeText = vi.fn().mockResolvedValue(undefined);
   Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
   renderPage();
-  await userEvent.click(await screen.findByRole('button', { name: '复制邀请链接' }));
-  expect(writeText).toHaveBeenCalledWith('http://localhost:3000/ref/ABC123');
+  await userEvent.click(await screen.findByRole('button', { name: '复制链接' }));
+  expect(writeText).toHaveBeenCalledWith('http://localhost:3000/i/ABC234DEF567');
   expect(screen.getByRole('status')).toHaveTextContent('邀请链接已复制');
 });
 
@@ -21,7 +21,7 @@ it('keeps the full URL visible and reports clipboard denial', async () => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => summary }));
   Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) } });
   renderPage();
-  await userEvent.click(await screen.findByRole('button', { name: '复制邀请链接' }));
-  expect(screen.getByDisplayValue('http://localhost:3000/ref/ABC123')).toBeVisible();
+  await userEvent.click(await screen.findByRole('button', { name: '复制链接' }));
+  expect(screen.getByDisplayValue('http://localhost:3000/i/ABC234DEF567')).toBeVisible();
   expect(screen.getByRole('status')).toHaveTextContent('复制失败，请手动选择下方链接');
 });

@@ -14,6 +14,7 @@ This file records unit-test knowledge for this repo.
 ## Fixture Conventions
 - API database tests use a dedicated temporary SQLite database.
 - Business fixtures use Alice as inviter and unique Bob/Charlie emails per test.
+- Authentication fixtures use Alice for a normal account and Bob for a `mustResetPassword=true` account; never place real secrets in fixtures.
 
 ## Mock Conventions
 - Jest mocks API failure seams; Vitest mocks browser APIs such as Clipboard.
@@ -26,3 +27,4 @@ This file records unit-test knowledge for this repo.
 ## Existing Helpers
 - API SQLite integration setup is established in `invitations.service.spec.ts` and `referrals.service.spec.ts`.
 - Web QueryClient/render setup is established in `invitation-copy.test.tsx` and `referral-form.test.tsx`.
+- Auth service coverage is in `auth.service.spec.ts`; frontend login/reset coverage is in `auth-flow.test.tsx`.
