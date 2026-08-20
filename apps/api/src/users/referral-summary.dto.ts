@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SummaryInvitationDto {
-  @ApiProperty({ example: 'ABC123' }) code: string;
-  @ApiProperty({ example: 'http://localhost:3000/ref/ABC123' }) publicUrl: string;
+  @ApiProperty({ example: '7K3M9Q2X5R8T' }) token: string;
+  @ApiProperty({ example: 'http://localhost:3000/i/7K3M9Q2X5R8T' }) publicUrl: string;
 }
 
 export class ReferralSummaryItemDto {

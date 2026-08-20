@@ -5,7 +5,7 @@ import { User } from './user.entity';
 @Entity('invitations')
 export class Invitation {
   @PrimaryColumn({ type: 'varchar', length: 64 }) id: string;
-  @Column({ type: 'varchar', length: 6, unique: true }) code: string;
+  @Column({ type: 'varchar', length: 12, unique: true }) token: string;
   @Column({ type: 'varchar', length: 64, unique: true }) inviterId: string;
   @OneToOne(() => User, (user) => user.invitation, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'inviterId' }) inviter: User;

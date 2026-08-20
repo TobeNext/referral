@@ -1,7 +1,7 @@
 # Invitations
 
 ## Business Logic
-Each inviter has one reusable six-character invitation code. A valid public lookup exposes only the inviter name. The API returns the full environment-derived URL.
+Each authenticated inviter has one reusable 12-character opaque invitation token. It is a random server-side reference to the invitation row and does not encode inviter data. A valid public lookup exposes only the inviter name. The API returns the full environment-derived `/i/{token}` URL.
 
 ## Feature Details
 ### Feature: create or reuse an invitation

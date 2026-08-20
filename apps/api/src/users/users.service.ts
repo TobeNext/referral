@@ -27,7 +27,7 @@ export class UsersService {
       email: user.email,
       creditBalance: user.creditBalance,
       successfulReferralCount: total,
-      invitation: invitation ? { code: invitation.code, publicUrl: `${baseUrl}/ref/${invitation.code}` } : null,
+      invitation: invitation ? { token: invitation.token, publicUrl: `${baseUrl}/i/${invitation.token}` } : null,
       referrals: newest.map((referral) => ({ id: referral.id, inviteeName: referral.invitee.name, rewardCredits: referral.rewardCredits, acceptedAt: referral.acceptedAt.toISOString() })),
       hasMore: total > 100
     };

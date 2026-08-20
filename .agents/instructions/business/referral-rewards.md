@@ -1,7 +1,7 @@
 # Referral Rewards
 
 ## Business Logic
-Only a newly registered, globally unique email can accept an invitation. User, referral, credit transaction, and inviter balance update succeed in one transaction. Each accepted referral awards the configured positive integer, default 100.
+Only a newly registered, globally unique email can accept an invitation. User with a hashed random temporary password, referral, credit transaction, and inviter balance update succeed in one transaction. Each accepted referral awards the configured positive integer, default 100. The plaintext temporary password is returned only in the successful registration response and is never persisted or logged.
 
 ## Feature Details
 ### Feature: accept an invitation atomically

@@ -9,6 +9,9 @@ export class User {
   @PrimaryColumn({ type: 'varchar', length: 64 }) id: string;
   @Column({ type: 'varchar', length: 80 }) name: string;
   @Column({ type: 'varchar', length: 254, unique: true }) email: string;
+  @Column({ type: 'varchar', length: 255, nullable: true, select: false }) passwordHash: string | null;
+  @Column({ type: 'boolean', default: true }) mustResetPassword: boolean;
+  @Column({ type: 'integer', default: 0 }) authVersion: number;
   @Column({ type: 'integer', default: 0 }) creditBalance: number;
   @CreateDateColumn({ type: 'datetime' }) createdAt: Date;
   @UpdateDateColumn({ type: 'datetime' }) updatedAt: Date;

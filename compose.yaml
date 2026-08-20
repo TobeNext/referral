@@ -11,6 +11,9 @@ services:
       PUBLIC_WEB_BASE_URL: http://localhost:3000
       REFERRAL_REWARD_CREDITS: 100
       DEMO_INVITER_ID: usr_alice
+      DEMO_INVITER_PASSWORD: ${DEMO_INVITER_PASSWORD:-AliceDemo1234}
+      JWT_SECRET: ${JWT_SECRET:-referral-demo-only-jwt-secret-change-me-2026}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-30m}
     volumes:
       - referral-demo-data:/data
     healthcheck:

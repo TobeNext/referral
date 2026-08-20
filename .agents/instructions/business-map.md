@@ -13,3 +13,9 @@ Reference: `.agents/instructions/business/invitations.md`
 Business logic scope: new-user registration through an invitation and exactly-once referral reward accounting.
 
 Reference: `.agents/instructions/business/referral-rewards.md`
+
+## Authentication
+
+Business logic scope: JWT login, authenticated current-user resources, and mandatory password reset for newly invited users.
+
+Reference: `.agents/instructions/business/authentication.md`
