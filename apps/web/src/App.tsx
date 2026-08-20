@@ -5,10 +5,12 @@ import { InvitationPage } from './pages/InvitationPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { LoginPage } from './pages/LoginPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { RegisterPage } from './pages/RegisterPage';
 import { RequireAuth } from './auth/RequireAuth';
 
 const router = createBrowserRouter([{ element: <Layout />, children: [
   { path: '/login', element: <LoginPage /> },
+  { path: '/register', element: <RegisterPage /> },
   { path: '/reset-password', element: <RequireAuth><ResetPasswordPage /></RequireAuth> },
   { path: '/', element: <RequireAuth resetComplete><DashboardPage /></RequireAuth> },
   { path: '/i/:token', element: <InvitationPage /> },
