@@ -13,7 +13,11 @@ export class ReferralsController {
   @ApiCreatedResponse({ type: AcceptInvitationResultDto })
   @ApiNotFoundResponse({ description: 'Invitation not found' })
   @ApiConflictResponse({ description: 'Email already registered' })
-  accept(@Param('token') token: string, @Body() input: AcceptInvitationDto, @Req() request: RequestWithId): Promise<AcceptInvitationResultDto> {
+  accept(
+    @Param('token') token: string,
+    @Body() input: AcceptInvitationDto,
+    @Req() request: RequestWithId
+  ): Promise<AcceptInvitationResultDto> {
     return this.referrals.acceptInvitation(token, input, request[REQUEST_ID]);
   }
 }

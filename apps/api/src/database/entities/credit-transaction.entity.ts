@@ -13,7 +13,9 @@ export class CreditTransaction {
   @Column({ type: 'integer' }) balanceAfter: number;
   @CreateDateColumn({ type: 'datetime' }) createdAt: Date;
   @ManyToOne(() => User, (user) => user.creditTransactions, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'userId' }) user: User;
+  @JoinColumn({ name: 'userId' })
+  user: User;
   @OneToOne(() => Referral, (referral) => referral.transaction, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'referralId' }) referral: Referral;
+  @JoinColumn({ name: 'referralId' })
+  referral: Referral;
 }

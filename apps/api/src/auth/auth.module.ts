@@ -16,7 +16,10 @@ function jwtSecret(): string {
 }
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), JwtModule.register({ secret: jwtSecret(), signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '30m') as never } })],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    JwtModule.register({ secret: jwtSecret(), signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '30m') as never } })
+  ],
   controllers: [AuthController],
   providers: [AuthService, JwtAuthGuard, PasswordResetCompleteGuard],
   exports: [JwtModule, AuthService, JwtAuthGuard, PasswordResetCompleteGuard]

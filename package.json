@@ -4,6 +4,12 @@
   "packageManager": "pnpm@11.22.0",
   "scripts": {
     "dev": "pnpm --parallel --filter api --filter web dev",
+    "api:format:check": "pnpm --filter api format:check",
+    "api:lint": "pnpm --filter api lint",
+    "api:typecheck": "pnpm --filter api typecheck",
+    "api:test:cov": "pnpm --filter api test:cov",
+    "api:test:e2e": "pnpm --filter api test:e2e",
+    "api:build": "pnpm --filter api build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
     "build": "pnpm -r build",

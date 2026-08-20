@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Exact non-secret values used only by API tests"
+regexes = [
+  '''^ABC234DEF567$''',
+  '''^e2e-secret-at-least-32-characters-long$'''
+]

@@ -12,7 +12,7 @@ export class AuthAndShortToken1755661000000 implements MigrationInterface {
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query('ALTER TABLE "invitations" RENAME COLUMN "code" TO "token"');
-    const invitations = await queryRunner.query('SELECT "id" FROM "invitations"') as Array<{ id: string }>;
+    const invitations = (await queryRunner.query('SELECT "id" FROM "invitations"')) as Array<{ id: string }>;
     for (const invitation of invitations) {
       let updated = false;
       while (!updated) {
@@ -33,7 +33,7 @@ export class AuthAndShortToken1755661000000 implements MigrationInterface {
     await queryRunner.query('ALTER TABLE "users" DROP COLUMN "authVersion"');
     await queryRunner.query('ALTER TABLE "users" DROP COLUMN "mustResetPassword"');
     await queryRunner.query('ALTER TABLE "users" DROP COLUMN "passwordHash"');
-    const invitations = await queryRunner.query('SELECT "id" FROM "invitations"') as Array<{ id: string }>;
+    const invitations = (await queryRunner.query('SELECT "id" FROM "invitations"')) as Array<{ id: string }>;
     for (const invitation of invitations) {
       let updated = false;
       while (!updated) {

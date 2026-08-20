@@ -14,5 +14,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, PasswordResetCompleteGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: ReferralSummaryDto, description: 'Referral summary ordered by acceptedAt descending' })
-  getSummary(@Req() request: AuthenticatedRequest): Promise<ReferralSummaryDto> { return this.users.getReferralSummary(request.user.id); }
+  getSummary(@Req() request: AuthenticatedRequest): Promise<ReferralSummaryDto> {
+    return this.users.getReferralSummary(request.user.id);
+  }
 }

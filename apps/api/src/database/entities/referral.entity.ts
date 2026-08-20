@@ -13,10 +13,13 @@ export class Referral {
   @Column({ type: 'integer' }) rewardCredits: number;
   @Column({ type: 'datetime' }) acceptedAt: Date;
   @ManyToOne(() => Invitation, (invitation) => invitation.referrals, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'invitationId' }) invitation: Invitation;
+  @JoinColumn({ name: 'invitationId' })
+  invitation: Invitation;
   @ManyToOne(() => User, (user) => user.referrals, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'inviterId' }) inviter: User;
+  @JoinColumn({ name: 'inviterId' })
+  inviter: User;
   @OneToOne(() => User, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'inviteeId' }) invitee: User;
+  @JoinColumn({ name: 'inviteeId' })
+  invitee: User;
   @OneToOne(() => CreditTransaction, (transaction) => transaction.referral) transaction?: CreditTransaction;
 }

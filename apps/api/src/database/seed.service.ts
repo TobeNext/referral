@@ -23,7 +23,15 @@ export class SeedService implements OnApplicationBootstrap {
       return;
     }
     const passwordHash = await hash(process.env.DEMO_INVITER_PASSWORD || 'AliceDemo1234', 10);
-    await this.users.insert({ id, name: 'Alice', email: 'alice@example.com', passwordHash, mustResetPassword: false, authVersion: 0, creditBalance: 0 });
+    await this.users.insert({
+      id,
+      name: 'Alice',
+      email: 'alice@example.com',
+      passwordHash,
+      mustResetPassword: false,
+      authVersion: 0,
+      creditBalance: 0
+    });
     this.logger.log(JSON.stringify({ event: 'seed.alice.created', userId: id }));
   }
 }

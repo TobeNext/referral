@@ -22,7 +22,10 @@ export class InvitationsController {
   @ApiOkResponse({ type: InvitationLinkDto, description: 'Existing invitation' })
   @ApiCreatedResponse({ type: InvitationLinkDto, description: 'Created invitation' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  async create(@Req() req: RequestWithId & AuthenticatedRequest, @Res({ passthrough: true }) response: Response): Promise<InvitationLinkDto> {
+  async create(
+    @Req() req: RequestWithId & AuthenticatedRequest,
+    @Res({ passthrough: true }) response: Response
+  ): Promise<InvitationLinkDto> {
     const result = await this.invitations.createOrReuse(req.user.id, req[REQUEST_ID]);
     response.status(result.created ? 201 : 200);
     return result.invitation;
@@ -31,5 +34,7 @@ export class InvitationsController {
   @Get('invitations/:token')
   @ApiOkResponse({ type: PublicInvitationDto })
   @ApiNotFoundResponse({ description: 'Invitation not found' })
-  getPublic(@Param('token') token: string): Promise<PublicInvitationDto> { return this.invitations.getPublic(token); }
+  getPublic(@Param('token') token: string): Promise<PublicInvitationDto> {
+    return this.invitations.getPublic(token);
+  }
 }
