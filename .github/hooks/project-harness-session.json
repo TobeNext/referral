@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "SessionStart": [
+      { "type": "command", "command": "node .github/hooks/scripts/project-harness-session-guard.mjs session-start", "timeout": 15 }
+    ],
+    "Stop": [
+      { "type": "command", "command": "node .github/hooks/scripts/project-harness-session-guard.mjs enforce-stop", "timeout": 15 }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+.env
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+test-results/
+playwright-report/
+.playwright-cli/
+.vite/
+*.tsbuildinfo
+apps/web/vite.config.js
+apps/web/vite.config.d.ts

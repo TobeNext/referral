@@ -1,0 +1,43 @@
+import { DataSource } from 'typeorm';
+import { CreditTransaction, Invitation, Referral, User } from '../database/entities';
+import { InitialSchema1755660000000 } from '../database/migrations/1755660000000-initial-schema';
+import { InvitationsService } from './invitations.service';
+
+describe('InvitationsService', () => {
+  let dataSource: DataSource;
+  let service: InvitationsService;
+  beforeEach(async () => {
+    dataSource = new DataSource({ type: 'better-sqlite3', database: ':memory:', entities: [User, Invitation, Referral, CreditTransaction], migrations: [InitialSchema1755660000000], migrationsRun: true, synchronize: false });
+    await dataSource.initialize();
+    await dataSource.getRepository(User).insert({ id: 'usr_alice', name: 'Alice', email: 'alice@example.com', creditBalance: 0 });
+    service = new InvitationsService(dataSource.getRepository(Invitation), dataSource.getRepository(User));
+  });
+  afterEach(async () => { if (dataSource.isInitialized) await dataSource.destroy(); });
+
+  it('creates once and reuses the same code', async () => {
+    const first = await service.createOrReuse('usr_alice', 'req-1');
+    const second = await service.createOrReuse('usr_alice', 'req-2');
+    expect(first.created).toBe(true);
+    expect(second.created).toBe(false);
+    expect(second.invitation.code).toBe(first.invitation.code);
+    expect(await dataSource.getRepository(Invitation).count()).toBe(1);
+  });
+
+  it('returns one invitation for concurrent creation requests', async () => {
+    const results = await Promise.all([
+      service.createOrReuse('usr_alice', 'req-concurrent-a'),
+      service.createOrReuse('usr_alice', 'req-concurrent-b')
+    ]);
+    expect(results[0].invitation.code).toBe(results[1].invitation.code);
+    expect(await dataSource.getRepository(Invitation).count()).toBe(1);
+  });
+
+  it('returns only inviter public name', async () => {
+    const created = await service.createOrReuse('usr_alice');
+    await expect(service.getPublic(created.invitation.code)).resolves.toEqual({ code: created.invitation.code, inviter: { name: 'Alice' } });
+  });
+
+  it('rejects an invalid invitation', async () => {
+    await expect(service.getPublic('BAD')).rejects.toMatchObject({ response: { code: 'INVITATION_NOT_FOUND' } });
+  });
+});

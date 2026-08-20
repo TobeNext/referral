@@ -1,0 +1,197 @@
+openapi: 3.1.0
+info:
+  title: Referral Demo API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      responses:
+        '200':
+          description: API and database are healthy
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+  /demo/inviter:
+    get:
+      operationId: getDemoInviter
+      responses:
+        '200':
+          description: Demo inviter summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReferralSummary' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /users/{userId}/invitation:
+    post:
+      operationId: createOrReuseInvitation
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Existing invitation
+          content: &invitationContent
+            application/json:
+              schema: { $ref: '#/components/schemas/InvitationLink' }
+        '201':
+          description: Created invitation
+          content: *invitationContent
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+  /invitations/{code}:
+    get:
+      operationId: getPublicInvitation
+      parameters:
+        - $ref: '#/components/parameters/InvitationCode'
+      responses:
+        '200':
+          description: Public invitation
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicInvitation' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /invitations/{code}/accept:
+    post:
+      operationId: acceptInvitation
+      parameters:
+        - $ref: '#/components/parameters/InvitationCode'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AcceptInvitationInput' }
+      responses:
+        '201':
+          description: Invitation accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AcceptInvitationResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /users/{userId}/referral-summary:
+    get:
+      operationId: getReferralSummary
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Referral summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReferralSummary' }
+        '404': { $ref: '#/components/responses/NotFound' }
+components:
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema: { type: string, minLength: 1 }
+    InvitationCode:
+      name: code
+      in: path
+      required: true
+      schema: { type: string, pattern: '^[A-Z0-9]{6}$' }
+  responses:
+    BadRequest: { description: Invalid request, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+    NotFound: { description: Resource not found, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+    Conflict: { description: Conflict, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+    InternalError: { description: Controlled internal failure, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+    ServiceUnavailable: { description: Service unavailable, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+  schemas:
+    Health:
+      type: object
+      required: [status, database]
+      properties:
+        status: { type: string, const: ok }
+        database: { type: string, const: up }
+    InvitationLink:
+      type: object
+      required: [code, path, publicUrl]
+      properties:
+        code: { type: string }
+        path: { type: string }
+        publicUrl: { type: string, format: uri }
+    PublicInvitation:
+      type: object
+      required: [code, inviter]
+      properties:
+        code: { type: string }
+        inviter:
+          type: object
+          required: [name]
+          properties: { name: { type: string } }
+          additionalProperties: false
+    AcceptInvitationInput:
+      type: object
+      required: [name, email]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        email: { type: string, format: email, maxLength: 254 }
+      additionalProperties: false
+    AcceptInvitationResult:
+      type: object
+      required: [user, referral]
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        referral:
+          type: object
+          required: [id, inviterName, rewardCredits, acceptedAt]
+          properties:
+            id: { type: string }
+            inviterName: { type: string }
+            rewardCredits: { type: integer, minimum: 1 }
+            acceptedAt: { type: string, format: date-time }
+    User:
+      type: object
+      required: [id, name, email]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string, format: email }
+    ReferralSummary:
+      type: object
+      required: [id, name, email, creditBalance, successfulReferralCount, invitation, referrals, hasMore]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string, format: email }
+        creditBalance: { type: integer, minimum: 0 }
+        successfulReferralCount: { type: integer, minimum: 0 }
+        invitation:
+          oneOf:
+            - { $ref: '#/components/schemas/SummaryInvitation' }
+            - { type: 'null' }
+        referrals:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [id, inviteeName, rewardCredits, acceptedAt]
+            properties:
+              id: { type: string }
+              inviteeName: { type: string }
+              rewardCredits: { type: integer, minimum: 1 }
+              acceptedAt: { type: string, format: date-time }
+        hasMore: { type: boolean }
+    SummaryInvitation:
+      type: object
+      required: [code, publicUrl]
+      properties:
+        code: { type: string }
+        publicUrl: { type: string, format: uri }
+    ApiError:
+      type: object
+      required: [statusCode, code, message, requestId, timestamp, path]
+      properties:
+        statusCode: { type: integer }
+        code: { type: string }
+        message: { type: string }
+        requestId: { type: string }
+        timestamp: { type: string, format: date-time }
+        path: { type: string }

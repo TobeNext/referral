@@ -1,0 +1,39 @@
+name: referral-demo
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_PATH: /data/referral.sqlite
+      PUBLIC_WEB_BASE_URL: http://localhost:3000
+      REFERRAL_REWARD_CREDITS: 100
+      DEMO_INVITER_ID: usr_alice
+    volumes:
+      - referral-demo-data:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+volumes:
+  referral-demo-data:
+    name: referral-demo-data
