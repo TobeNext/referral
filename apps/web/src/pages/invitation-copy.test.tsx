@@ -17,6 +17,16 @@ it('copies the complete public URL and reports success', async () => {
   expect(screen.getByRole('status')).toHaveTextContent('邀请链接已复制');
 });
 
+it('copies the token as an invitation code', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => summary }));
+  const writeText = vi.fn().mockResolvedValue(undefined);
+  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+  renderPage();
+  await userEvent.click(await screen.findByRole('button', { name: '复制邀请码' }));
+  expect(writeText).toHaveBeenCalledWith('ABC234DEF567');
+  expect(screen.getByRole('status')).toHaveTextContent('邀请码已复制');
+});
+
 it('keeps the full URL visible and reports clipboard denial', async () => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => summary }));
   Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) } });
